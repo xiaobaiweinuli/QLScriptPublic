@@ -16,7 +16,7 @@ logger.addHandler(logging.StreamHandler())
 def load_send():
     global send, mg
     cur_path = path.abspath(path.dirname(__file__))
-    if path.exists(cur_path + "/notify.py"):
+    if path.exists(f"{cur_path}/notify.py"):
         try:
             from notify import send
             print("加载通知服务成功！")
@@ -37,14 +37,13 @@ except:
     exit(0)
 
 def setHeaders(i):
-    headers = {
+    return {
         "auth": cookies[i],
         "hostname": "scrm-prod.shuyi.org.cn",
         "content-type": "application/json",
         "host": "scrm-prod.shuyi.org.cn",
-        "User-Agent": "Mozilla/5.0 (Linux; Android 10; V2203A Build/SP1A.210812.003; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/107.0.5304.141 Mobile Safari/537.36 XWEB/5023 MMWEBSDK/20221012 MMWEBID/1571 MicroMessenger/8.0.30.2260(0x28001E55) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64 MiniProgramEnv/android"
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; V2203A Build/SP1A.210812.003; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/107.0.5304.141 Mobile Safari/537.36 XWEB/5023 MMWEBSDK/20221012 MMWEBID/1571 MicroMessenger/8.0.30.2260(0x28001E55) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64 MiniProgramEnv/android",
     }
-    return headers
 
 cookies = []
 try:
@@ -83,10 +82,11 @@ def ocr(tg,bg):
 采用AES对称加密算法
 '''
 
+
 BLOCK_SIZE = 16  # Bytes
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
                 chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
-unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+unpad = lambda s: s[:-ord(s[-1:])]
 
 
 def aesEncrypt(key, data):
@@ -103,8 +103,7 @@ def aesEncrypt(key, data):
     # 加密后得到的是bytes类型的数据，使用Base64进行编码,返回byte字符串
     result = cipher.encrypt(data.encode())
     encodestrs = base64.b64encode(result)
-    enctext = encodestrs.decode('utf8')
-    return enctext
+    return encodestrs.decode('utf8')
 
 
 def aesDecrypt(key, data):
@@ -131,15 +130,15 @@ def checkVCode(pointJson, token):
             "pointJson": pointJson,
             "token": token
         }
-        
+
         url = 'https://scrm-prod.shuyi.org.cn/saas-gateway/api/agg-trade/v1/signIn/checkVCode'
         response = requests.post(url, json=data, headers=headers)
         result = response.json()
         resultCode = result['resultCode']
-        resultMsg = result['resultMsg']
         if resultCode == '0000':
-            logger.info(f"校验结果：成功")
+            logger.info("校验结果：成功")
         else:
+            resultMsg = result['resultMsg']
             logger.info(f"校验结果： {resultMsg}")
             time.sleep(3)
             main()
@@ -157,12 +156,12 @@ def check_sign(pointJson):
         response = requests.post(url, json=data, headers=headers)
         result = response.json()
         resultCode = result['resultCode']
-        
-        resultMsg = result['resultMsg']
+
         if resultCode == '0':
             logger.info(f"签到结果：{result}")
             send('书亦烧仙草签到通知', result)
         else:
+            resultMsg = result['resultMsg']
             logger.info(f"签到结果： {resultMsg}")
             send('书亦烧仙草签到通知', resultMsg)
     except Exception as err:
@@ -196,7 +195,7 @@ def main():
     logger.info("--------------------校验滑块--------------------")
     checkVCode(pointJson, token)
     logger.info("--------------------开始签到--------------------")
-    str = (token + '---' + aes_str)
+    str = f'{token}---{aes_str}'
     data = str.replace(' ', '')
     ecdata = aesEncrypt(key, data)
     aesDecrypt(key, ecdata)
