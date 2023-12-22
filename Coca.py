@@ -1,6 +1,7 @@
 #可口可乐吧小程序,抓包authorization,填入环境变量Coca中,多账号换行或@隔开
 import json,os,random,time,requests as r
-def UF():return f"Mozilla/5.0 (iPhone; CPU iPhone OS {f'{random.randint(12,15)}.{random.randint(0,6)}.{random.randint(0,9)}'} like Mac OS X) AppleWebKit/{f'{random.randint(600,700)}.{random.randint(1,4)}.{random.randint(1,5)}'} (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.20(0x16001422) NetType/WIFI Language/zh_CN"
+def UF():
+    return f"Mozilla/5.0 (iPhone; CPU iPhone OS {random.randint(12, 15)}.{random.randint(0, 6)}.{random.randint(0, 9)} like Mac OS X) AppleWebKit/{random.randint(600, 700)}.{random.randint(1, 4)}.{random.randint(1, 5)} (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.20(0x16001422) NetType/WIFI Language/zh_CN"
 U="https://koplus.icoke.cn/cre-bff/wechat/"
 P=os.environ.get("Coca")
 if P and P!="":
@@ -22,7 +23,7 @@ if P and P!="":
             time.sleep(3)
             qReq=r.get(url=f"{U}profile",headers=H)
             qResp=json.loads(qReq.text)
-            print(f"🎉开始查询账号积分🎉")
+            print("🎉开始查询账号积分🎉")
             if qResp["data"]:
                 print(f"🎆账号快乐瓶总额：{str(int(qResp['data']['point'])/10)}🎆")
             else:

@@ -69,17 +69,13 @@ def get_env():
     global HELP_SIGNAL
     global SK
     global USER_AGENT
-    env_str = os.getenv("dewu_x_auth_token")
-    if env_str:
+    if env_str := os.getenv("dewu_x_auth_token"):
         ck_list += env_str.replace("&", "\n").split("\n")
-    env_str = os.getenv("dewu_help_signal")
-    if env_str:
+    if env_str := os.getenv("dewu_help_signal"):
         HELP_SIGNAL = env_str
-    env_str = os.getenv("dewu_sk")
-    if env_str:
+    if env_str := os.getenv("dewu_sk"):
         SK = env_str.strip()
-    env_str = os.getenv("dewu_user_agent")
-    if env_str:
+    if env_str := os.getenv("dewu_user_agent"):
         USER_AGENT = env_str.strip()
 
 
@@ -104,8 +100,7 @@ def get_version_from_github():
                     latest_version = version_match.group(1)
                     break
         except Exception as e:
-            if e:
-                pass
+            pass
     myprint(f'现在运行的版本是：{__version__}，最新版本：{latest_version}',
             flush=True)
 
@@ -115,8 +110,7 @@ def download_author_share_code():
     global author_share_code_list
     try:
         response = requests.get('https://netcut.cn/p/d3436822ba03c0c3')
-        _list = re.findall(r'"note_content":"(.*?)"', response.text)
-        if _list:
+        if _list := re.findall(r'"note_content":"(.*?)"', response.text):
             share_code_list = _list[0].split(r'\n')
             author_share_code_list += share_code_list
     except Exception as e:
@@ -129,8 +123,7 @@ def get_url_key_value(url, key):
     parsed_url = urlparse(url)
     query_params = parse_qs(parsed_url.query)
     _dict = {k: v[0] if len(v) == 1 else v for k, v in query_params.items()}
-    key_value = _dict.get(key)
-    return key_value
+    return _dict.get(key)
 
 
 class DeWu:
@@ -185,7 +178,7 @@ class DeWu:
         response_dict = response.json()
         # myprint(response_dict)
         if response_dict.get('code') == 200:
-            myprint(f"签到成功！")
+            myprint("签到成功！")
             return
         myprint(f"签到失败！ {response_dict.get('msg')}")
 
@@ -258,8 +251,8 @@ class DeWu:
 
     # 浇水充满气泡水滴
     def waterting_droplet_extra(self):
+        url = 'https://app.dewu.com/hacking-tree/v1/droplet-extra/info'
         while True:
-            url = 'https://app.dewu.com/hacking-tree/v1/droplet-extra/info'
             response = self.session.get(url, headers=self.headers)
             response_dict = response.json()
             # myprint(response_dict)
@@ -317,11 +310,8 @@ class DeWu:
         _json = {"keyword": ""}
         response = self.session.post(url, headers=self.headers, json=_json)
         response_dict = response.json()
-        # myprint(response_dict)
-        data = response_dict.get('data')
-        if data:
-            droplet_number = data.get('droplet')
-            return droplet_number
+        if data := response_dict.get('data'):
+            return data.get('droplet')
         myprint(f'获得当前水滴数出错 {response_dict}')
         return '获取失败'
 
@@ -370,8 +360,8 @@ class DeWu:
 
     # 领取等级奖励
     def receive_level_reward(self):
+        url = 'https://app.dewu.com/hacking-tree/v1/tree/get_level_reward'
         for _ in range(20):
-            url = 'https://app.dewu.com/hacking-tree/v1/tree/get_level_reward'
             _json = {'promote': ''}
             response = self.session.post(url, headers=self.headers, json=_json)
             response_dict = response.json()
@@ -427,8 +417,8 @@ class DeWu:
 
     # 多次执行浇水，领取浇水奖励
     def execute_receive_watering_reward(self):
+        url = 'https://app.dewu.com/hacking-tree/v1/tree/get_tree_info'
         for _ in range(20):
-            url = 'https://app.dewu.com/hacking-tree/v1/tree/get_tree_info'
             response = self.session.get(url, headers=self.headers)
             response_dict = response.json()
             # myprint(response_dict)
@@ -461,9 +451,7 @@ class DeWu:
         response = self.session.post(url, headers=self.headers, json=_json)
         response_dict = response.json()
         # myprint(response_dict)
-        if response_dict.get('code') == 200:
-            return True
-        return False
+        return response_dict.get('code') == 200
 
     # 获取任务列表
     def get_task_list(self):
@@ -487,10 +475,9 @@ class DeWu:
         response = self.session.post(url, headers=self.headers, json=_json)
         response_dict = response.json()
         # myprint(response_dict)
-        if response_dict.get('code') == 200 and response_dict.get(
-                'status') == 200:
-            return True
-        return False
+        return (
+            response_dict.get('code') == 200 and response_dict.get('status') == 200
+        )
 
     # 浏览任务开始  且等待16s TaskType有变化  浏览15s会场会变成16
     def task_commit_pre(self, _json):
@@ -498,10 +485,9 @@ class DeWu:
         response = self.session.post(url, headers=self.headers, json=_json)
         response_dict = response.json()
         # myprint(response_dict)
-        if response_dict.get('code') == 200 and response_dict.get(
-                'status') == 200:
-            return True
-        return False
+        return (
+            response_dict.get('code') == 200 and response_dict.get('status') == 200
+        )
 
     # 执行任务
     def execute_task(self):
@@ -597,7 +583,7 @@ class DeWu:
                    ['.*逛逛.*', '浏览.*s']):
                 _json = {'taskId': task_id, 'taskType': task_type, 'btd': btd}
                 if self.task_commit_pre(_json):
-                    myprint(f'等待16秒')
+                    myprint('等待16秒')
                     time.sleep(16)
                     _json = {'taskId': task_id, 'taskType': str(task_type),
                              'activityType': None, 'activityId': None,
@@ -612,7 +598,7 @@ class DeWu:
             if any(re.match(pattern, task_name) for pattern in ['.*晒图.*']):
                 _json = {'taskId': task_id, 'taskType': task_type}
                 if self.task_commit_pre(_json):
-                    myprint(f'等待16秒')
+                    myprint('等待16秒')
                     time.sleep(16)
                     _json = {'taskId': task_id, 'taskType': str(task_type),
                              'activityType': None, 'activityId': None,
@@ -627,7 +613,7 @@ class DeWu:
                 count = tasks_dict.get('total') - tasks_dict.get(
                     'curStep')  # 还需要浇水的次数=要浇水的次数-以浇水的次数
                 if self.get_droplet_number() < (count * self.waterting_g):
-                    myprint(f'当前水滴不足以完成任务，跳过')
+                    myprint('当前水滴不足以完成任务，跳过')
                     continue
                 for _ in range(count):
                     time.sleep(0.5)
@@ -646,7 +632,7 @@ class DeWu:
                 if self.task_obtain(task_id, task_type):
                     _json = {'taskId': task_id, 'taskType': 16}
                     if self.task_commit_pre(_json):
-                        myprint(f'等待16秒')
+                        myprint('等待16秒')
                         time.sleep(16)
                         _json = {'taskId': task_id, 'taskType': str(task_type)}
                         self.submit_task_completion_status(_json)  # 提交完成状态
@@ -712,8 +698,7 @@ class DeWu:
         # myprint(response_dict)
         if response_dict.get('status') == 200:
             keyword = response_dict.get('data').get('keyword')
-            keyword = re.findall('œ(.*?)œ ', keyword)
-            if keyword:
+            if keyword := re.findall('œ(.*?)œ ', keyword):
                 myprint(f'获取助力码成功 {keyword[0]}')
                 return keyword[0]
         myprint(f'获取助力码失败！ {response_dict}')
@@ -815,8 +800,8 @@ class DeWu:
 
     # 领取空中水滴
     def receive_air_drop(self):
+        url = 'https://app.dewu.com/hacking-tree/v1/droplet/air_drop_receive'
         for _ in range(2):
-            url = 'https://app.dewu.com/hacking-tree/v1/droplet/air_drop_receive'
             _json = {"clickCount": 20, "time": int(time.time())}
             response = self.session.post(url, headers=self.headers, json=_json)
             response_dict = response.json()
@@ -848,14 +833,14 @@ class DeWu:
                          "sign": "5c113b9203a510b7068b3cd0f6b7c25e"},
                         {"spuId": 3938180, "timestamp": 1690792014889,
                          "sign": "3841c0272443dcbbab0bcb21c94c6262"}, ]
+        url = 'https://app.dewu.com/hacking-tree/v1/product/spu'
         for product in product_list:
-            url = 'https://app.dewu.com/hacking-tree/v1/product/spu'
             _json = product
             response = self.session.post(url, headers=self.headers, json=_json)
             response_dict = response.json()
             # myprint(response_dict)
             if response_dict.get('data') is None:
-                myprint(f'今天已经完成过该任务了！')
+                myprint('今天已经完成过该任务了！')
                 return
             if response_dict.get('data', {}).get('isReceived') is True:
                 myprint(
@@ -865,14 +850,13 @@ class DeWu:
 
     # 领取发现水滴
     def receive_discover_droplet(self):
+        url = 'https://app.dewu.com/hacking-tree/v1/product/task/seek-receive'
         while True:
-            url = 'https://app.dewu.com/hacking-tree/v1/product/task/seek-receive'
             _json = {"sign": "9888433e6d10b514e5b5be4305d123f0",
                      "timestamp": int(time.time() * 1000)}
             response = self.session.post(url, headers=self.headers, json=_json)
             response_dict = response.json()
             myprint(response_dict)
-            pass
 
     # 领取品牌特惠奖励
     def receive_brand_specials(self):
